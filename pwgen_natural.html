@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<style type="text/css">
+			td{
+				padding-right: 10px;
+			}
+			.pwtext{
+				font-family: monospace;
+			}
+		</style>
+		<script src="jquery-2.1.1.min.js"></script>
+		<script src="pwgen_natural.js" charset="UTF-8"></script>
+	</head>
+	
+	<body>
+		<h2>Natural Word Password Generator:</h2>
+		<button onclick="generate()">Generate</button>
+		<br><br>
+		<table>
+			<tr><td>Min. number of Characters:</td><td><input type="number" name="chars" id="chars" min=0 value=20></td></tr>
+			<tr><td>Separation character:</td><td><input type="text" maxlength="1" name="sepachar" id="sepachar" min=0 value="-" size="1"></td></tr>
+		</table>
+		<br>
+		<div id="output" class="pwtext"></div>
+		<div id="url"></div>
+		<div id="title"></div>
+	</body>
+</html>
