@@ -9,7 +9,8 @@ To view the password generator follow this link:
 http://htmlpreview.github.io/?https://github.com/Thorbur/xkcd-wiki-pwgen/blob/master/xkcd-wiki-pwgen.html
 
 NOTICE:  
-I found another great project on github that is doing the same https://github.com/RobertZenz/Bivalvia/blob/master/Tools/genPassWiki.sh  
+I found another great project on github that is doing the same   
+https://github.com/RobertZenz/Bivalvia/blob/master/Tools/genPassWiki.sh  
 Kudos!  
 However, because this implementation uses only HTML and JavaScript, it is platform independent and has less requirements.
 
