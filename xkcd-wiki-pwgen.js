@@ -17,7 +17,7 @@ function generate(){
 	var sepa_char = document.getElementById("sepachar").value;
 
 	//Get random ID and invoke next call
-	$.getJSON("http://de.wikipedia.org/w/api.php?action=query&generator=random&grnnamespace=0&format=json&callback=?", function(data) {
+	$.getJSON("https://de.wikipedia.org/w/api.php?action=query&generator=random&grnnamespace=0&format=json&callback=?", function(data) {
 	
 		console.log(JSON.stringify(data));
 		console.log("");
@@ -32,7 +32,7 @@ function generate(){
 
 
 		//Get text
-		$.getJSON("http://de.wikipedia.org/w/api.php?action=parse&pageid=" + rndID + "&prop=text&format=json&callback=?", function (data) {
+		$.getJSON("https://de.wikipedia.org/w/api.php?action=parse&pageid=" + rndID + "&prop=text&format=json&callback=?", function (data) {
 		
 			console.log(JSON.stringify(data));
 			console.log("");
@@ -89,7 +89,7 @@ function generate(){
 
 				$("#output").text(pw);
 				$("#title").text(title);
-				$("#url").html("<a href='http://de.wikipedia.org/wiki/" + title.replace(" ", "_") + "'>http://de.wikipedia.org/wiki/" + title.replace(" ", "_") + "</a>");
+				$("#url").html("<a href='https://de.wikipedia.org/wiki/" + title.replace(" ", "_") + "'>https://de.wikipedia.org/wiki/" + title.replace(" ", "_") + "</a>");
 				
 			} else {
 				//$("#output").text("Error: Text too short!");
