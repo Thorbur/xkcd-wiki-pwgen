@@ -6,7 +6,7 @@ There exist already some webpages implementing a similar algorithm, but they use
 But by using Wikipedia as word source, it's possible to have more uncommon words than from a dictonary and you could also choose Wikipedia sites in different languages. I think remembering words in your mother tongue is easier, therefore I wrote this password generator.
 
 To view the password generator follow this link:  
-http://htmlpreview.github.io/?https://github.com/Thorbur/xkcd-wiki-pwgen/blob/master/xkcd-wiki-pwgen.html
+https://thorbur.github.io/xkcd-wiki-pwgen/xkcd-wiki-pwgen.html
 
 NOTICE:  
 I found another great project on github that is doing the same   
