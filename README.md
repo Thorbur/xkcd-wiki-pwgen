@@ -7,7 +7,7 @@ However, by using Wikipedia as word source, it's possible to have more uncommon 
 The generator also includes the password strength meter [zxcvbn](https://github.com/dropbox/zxcvbn).
 
 To view the password generator follow this link:  
-https://thorbur.github.io/xkcd-wiki-pwgen/xkcd-wiki-pwgen.html
+https://thorbur.github.io/xkcd-wiki-pwgen/index.html
   
   
   
