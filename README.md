@@ -3,17 +3,13 @@ xkcd-wiki-pwgen
 
 This is another password generator inspired by http://xkcd.com/936/, but based on random words from a random Wikipedia article. 
 There exist already some webpages implementing a similar algorithm, but they use only english words and presumably use any kind of dictionary. 
-But by using Wikipedia as word source, it's possible to have more uncommon words than from a dictonary and you could also choose Wikipedia sites in different languages. I think remembering words in your mother tongue is easier, therefore I wrote this password generator.
+However, by using Wikipedia as word source, it's possible to have more uncommon words than from a dictonary and you can also choose Wikipedia sites in different languages. As indicated by the comic, remembering words in your mother tongue is easier than a bunch random characters.
+The genrator also includes the password strength meter [zxcvbn](https://github.com/dropbox/zxcvbn).
 
 To view the password generator follow this link:  
 https://thorbur.github.io/xkcd-wiki-pwgen/xkcd-wiki-pwgen.html
-
-NOTICE:  
-I found another great project on github that is doing the same   
-https://github.com/RobertZenz/Bivalvia/blob/master/Tools/genPassWiki.sh  
-Kudos!  
-However, because this implementation uses only HTML and JavaScript, it is platform independent and has less requirements.
-
-TODO:
-- wikipedia site selection
-- fix word separation for some cases (I think issue is caused by tables)
+  
+  
+  
+#####Other projects on GitHub based on the same idea: 
+* For the Shell: [genPassWiki](https://github.com/RobertZenz/Bivalvia/blob/master/Tools/genPassWiki.sh) 

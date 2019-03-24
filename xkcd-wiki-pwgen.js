@@ -3,6 +3,8 @@
  Idea taken from http://jsfiddle.net/HMJJg/
  ***/
 
+let ajaxQ = [];
+
 function strip(html) {
     const tmp = document.createElement("DIV");
     tmp.innerHTML = html;
@@ -13,36 +15,47 @@ function generate() {
     const min_num_chars = parseInt(document.getElementById("chars").value);
     const sepa_char = document.getElementById("sepachar").value;
     const num_passwords = parseInt(document.getElementById("times").value);
+    const lang = document.querySelector('input[name="wiki"]:checked').value;
 
-    $("#output").empty();
+    //abort all previous requests and clear array
+    for (let r = 0; r < ajaxQ.length; r++) {
+        console.log("abort " + ajaxQ[r]);
+        ajaxQ[r].abort();
+    }
+    ajaxQ = [];
+
+    // create table and fill it with ajax requests
+    $("#output").empty()
+        .append("<table id='pwtable' border='1'><tr><th>Password</th><th>Article</th><th>Link</th>" +
+            "<th><a target='_blank' href='https://github.com/dropbox/zxcvbn'>zxcvbn-score</a></th></tr></table>");
     for (let i = 0; i < num_passwords; i++) {
-        add_passwd(min_num_chars, sepa_char);
+        add_passwd(min_num_chars, sepa_char, lang);
     }
 }
 
-function add_passwd(min_num_chars, sepa_char) {
+function add_passwd(min_num_chars, sepa_char, lang) {
     let title = "";
 
-
     //Get random ID and invoke next call
-    $.getJSON("https://de.wikipedia.org/w/api.php?action=query&generator=random&grnnamespace=0&format=json&callback=?",
+    ajaxQ.push($.getJSON("https://" + lang +
+        ".wikipedia.org/w/api.php?action=query&generator=random&grnnamespace=0&format=json&callback=?",
         function (data) {
 
-            console.log(JSON.stringify(data));
-            console.log("");
+            //console.log(JSON.stringify(data));
+            //console.log("");
 
             const rndID = Object.keys(data['query']['pages'])[0];
             title = data['query']['pages'][rndID]['title'];
-            console.log("ID = " + rndID);
-            console.log("");
+            //console.log("ID = " + rndID);
+            //console.log("");
 
 
             //Get text
-            $.getJSON("https://de.wikipedia.org/w/api.php?action=parse&pageid=" + rndID +
+            ajaxQ.push($.getJSON("https://" + lang + ".wikipedia.org/w/api.php?action=parse&pageid=" + rndID +
                 "&prop=text&format=json&callback=?", function (data) {
 
-                console.log(JSON.stringify(data));
-                console.log("");
+                //console.log(JSON.stringify(data));
+                //console.log("");
 
                 const token = Object.keys(data.parse.text)[0];
                 let text = data.parse.text[token].split("<p>");
@@ -76,12 +89,13 @@ function add_passwd(min_num_chars, sepa_char) {
                 //pText = pText.replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/Ä/g,"Ae")
                 // .replace(/Ö/g,"Oe").replace(/Ü/g,"Ue").replace(/ß/g,"ss");
                 pText = pText.replace(/\u00e4/g, "ae").replace(/\u00c4/g, "Ae").replace(/\u00f6/g, "oe")
-                    .replace(/\u00d6/g, "Oe").replace(/\u00fc/g, "ue").replace(/\u00dc/g, "Ue").replace(/\u00df/g, "ss"); // Remove Umlaute
+                    .replace(/\u00d6/g, "Oe").replace(/\u00fc/g, "ue").replace(/\u00dc/g, "Ue")
+                    .replace(/\u00df/g, "ss"); // Remove Umlaute
                 pText = pText.replace("-", " "); // Replace hyphen
                 pText = pText.replace(/[^\w\s]/gi, ""); // Remove special characters
 
-                console.log(pText);
-                console.log("");
+                //console.log(pText);
+                //console.log("");
 
                 if (pText.length > (min_num_chars * 2)) {
                     let pw = "";
@@ -93,15 +107,14 @@ function add_passwd(min_num_chars, sepa_char) {
                         pw += sepa_char + words.splice(pick, 1);
                     }
 
-                    $("#output").append('<div class="pwtext">' + pw + '</div>')
-                        .append('<div>' + title + '</div>')
-                        .append("<a href='https://de.wikipedia.org/wiki/" + title.replace(" ", "_") +
-                            "'>https://de.wikipedia.org/wiki/" + title.replace(" ", "_") + "</a>")
-                        .append("<br>").append("<br>");
+                    $("#pwtable").append('<tr><td class="pwtext">' + pw + '</td><td>' + title + '</td><td>' +
+                        "<a target='_blank' href='https://" + lang + ".wikipedia.org/wiki/" + title.replace(" ", "_") +
+                        "'>https://" + lang + ".wikipedia.org/wiki/" + title.replace(" ", "_") + "</a></td>" +
+                        "<td>" + zxcvbn(pw).score + "</td>");
 
                 } else {
-                    add_passwd(min_num_chars, sepa_char); // try another time
+                    add_passwd(min_num_chars, sepa_char, lang); // try another time
                 }
-            });
-        });
+            }));
+        }));
 }
