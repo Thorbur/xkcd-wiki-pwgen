@@ -58,8 +58,9 @@ function generate() {
 
     // create table and fill it with ajax requests
     $("#output").empty()
-        .append("<table id='pwtable' border='1'><tr><th>Password</th><th>Article</th><th>Link</th>" +
-            "<th><a target='_blank' href='https://github.com/dropbox/zxcvbn'>zxcvbn-score</a></th></tr></table>");
+        .append("<table border='1' id='pwtable'><thead><tr><th>Password</th><th>Article</th><th>Link</th>" +
+            "<th><a target='_blank' href='https://github.com/dropbox/zxcvbn'>zxcvbn-score</a></th></tr></thead>" +
+            "<tbody id='pwbody'></tbody></table>");
     for (let i = 0; i < num_passwords; i++) {
         add_passwd(min_num_chars, sepa_char, lang);
     }
@@ -140,7 +141,7 @@ function add_passwd(min_num_chars, sepa_char, lang) {
                         pw += sepa_char + words.splice(pick, 1);
                     }
 
-                    $("#pwtable").append('<tr><td class="pwtext">' + pw + '</td><td>' + title + '</td><td>' +
+                    $("#pwbody").append('<tr><td class="pwtext">' + pw + '</td><td>' + title + '</td><td>' +
                         "<a target='_blank' href='https://" + lang + ".wikipedia.org/wiki/" + title.replace(" ", "_") +
                         "'>https://" + lang + ".wikipedia.org/wiki/" + title.replace(" ", "_") + "</a></td>" +
                         "<td>" + zxcvbn(pw).score + "</td>");

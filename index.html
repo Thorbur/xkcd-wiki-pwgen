@@ -11,10 +11,12 @@
         .pwtext {
             font-family: monospace;
         }
+
         body {
             background-color: black;
             color: limegreen;
         }
+
         /* unvisited link */
         a:link {
             color: yellow;
@@ -34,6 +36,83 @@
         a:active {
             color: white;
         }
+
+        /* Mobile layout */
+        @media only screen and (max-width: 760px),
+        (min-device-width: 768px) and (max-device-width: 1024px) {
+
+            input {
+                float: left;
+            }
+
+            label {
+                float: left;
+            }
+
+            label + input {
+                clear: both;
+            }
+
+            /* Force table to not be like tables anymore */
+            table#pwtable, table#pwtable thead, table#pwtable tbody, table#pwtable th, table#pwtable td,
+            table#pwtable tr {
+                display: block;
+            }
+
+            /* Hide table headers (but not display: none;, for accessibility) */
+            table#pwtable thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            table#pwtable tr {
+                border: 1px solid #ccc;
+            }
+
+            table#pwtable td {
+                /* Behave  like a "row" */
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 40%;
+                min-height: 2em;
+            }
+
+            table#pwtable td:before {
+                /* Now like a table header */
+                position: absolute;
+                /* Top/left values mimic padding */
+                font-family: serif !important;
+                left: 6px;
+                padding-right: 2px;
+                white-space: nowrap;
+            }
+
+            /* Visual marker */
+            table#pwtable td:nth-of-type(1) {
+                background-color: gray;
+            }
+
+            /* Row labels */
+            table#pwtable td:nth-of-type(1):before {
+                content: "Password";
+            }
+
+            table#pwtable td:nth-of-type(2):before {
+                content: "Article";
+            }
+
+            table#pwtable td:nth-of-type(3):before {
+                content: "Link";
+            }
+
+            table#pwtable td:nth-of-type(4):before {
+                content: "zxcvbn-score";
+            }
+        }
+
+
     </style>
     <script src="https://code.jquery.com/jquery-latest.min.js"></script>
     <script src="zxcvbn.js"></script>
