@@ -22,7 +22,7 @@ function removeHTMLSection(text, beginIdentifier, baseTag, endTag) {
                 subtext = subtext.substring(subIndex);
                 baseTagCounter++;
             } else {
-                if(nextEndIndex >= 0) {
+                if (nextEndIndex >= 0) {
                     nextEndIndex += endTag.length;
                     endIndex += nextEndIndex;
                     subtext = subtext.substring(nextEndIndex);
@@ -37,8 +37,8 @@ function removeHTMLSection(text, beginIdentifier, baseTag, endTag) {
     return text;
 }
 
-function removeAllHTMLSection(text, beginIdentifier, baseTag, endTag){
-    while(text.search(beginIdentifier) >= 0){
+function removeAllHTMLSection(text, beginIdentifier, baseTag, endTag) {
+    while (text.search(beginIdentifier) >= 0) {
         text = removeHTMLSection(text, beginIdentifier, baseTag, endTag);
     }
     return text;
@@ -141,10 +141,29 @@ function add_passwd(min_num_chars, sepa_char, lang) {
                         pw += sepa_char + words.splice(pick, 1);
                     }
 
+                    let score = zxcvbn(pw).score;
+                    let highlightColor = "red";
+                    switch (score) {
+                        case 0:
+                            highlightColor = "red";
+                            break;
+                        case 1:
+                            highlightColor = "orange";
+                            break;
+                        case 2:
+                            highlightColor = "yellow";
+                            break;
+                        case 3:
+                            highlightColor = "lightblue";
+                            break;
+                        case 4:
+                            highlightColor = "green";
+                            break;
+                    }
                     $("#pwbody").append('<tr><td class="pwtext">' + pw + '</td><td>' + title + '</td><td>' +
                         "<a target='_blank' href='https://" + lang + ".wikipedia.org/wiki/" + title.replace(" ", "_") +
                         "'>https://" + lang + ".wikipedia.org/wiki/" + title.replace(" ", "_") + "</a></td>" +
-                        "<td>" + zxcvbn(pw).score + "</td>");
+                        "<td style='color: black; background-color: " + highlightColor + ";'>" + score + "</td>");
 
                 } else {
                     add_passwd(min_num_chars, sepa_char, lang); // try another time
