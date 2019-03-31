@@ -5,10 +5,43 @@
 
 let ajaxQ = [];
 
-function strip(html) {
-    const tmp = document.createElement("DIV");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || "";
+function removeHTMLSection(text, beginIdentifier, baseTag, endTag) {
+    // NOTE: Could be also done by parsing the input in the DOM, but that would be a security risk
+    let beginIndex = text.search(beginIdentifier);
+    if (beginIndex >= 0) {
+        let baseTagCounter = 1;
+        let subIndex = beginIndex + beginIdentifier.length;
+        let endIndex = subIndex;
+        let subtext = text.substring(subIndex);
+        do {
+            subIndex = subtext.search(baseTag);
+            let nextEndIndex = subtext.search(endTag);
+            if (subIndex >= 0 && nextEndIndex >= 0 && subIndex < nextEndIndex) {
+                subIndex += baseTag.length;
+                endIndex += subIndex;
+                subtext = subtext.substring(subIndex);
+                baseTagCounter++;
+            } else {
+                if(nextEndIndex >= 0) {
+                    nextEndIndex += endTag.length;
+                    endIndex += nextEndIndex;
+                    subtext = subtext.substring(nextEndIndex);
+                }
+                baseTagCounter--;
+            }
+
+        } while (subtext.length > 0 && baseTagCounter > 0);
+        return text.substring(0, beginIndex) + text.substring(endIndex, text.length);
+    }
+
+    return text;
+}
+
+function removeAllHTMLSection(text, beginIdentifier, baseTag, endTag){
+    while(text.search(beginIdentifier) >= 0){
+        text = removeHTMLSection(text, beginIdentifier, baseTag, endTag);
+    }
+    return text;
 }
 
 function generate() {
@@ -19,7 +52,6 @@ function generate() {
 
     //abort all previous requests and clear array
     for (let r = 0; r < ajaxQ.length; r++) {
-        console.log("abort " + ajaxQ[r]);
         ajaxQ[r].abort();
     }
     ajaxQ = [];
@@ -41,65 +73,66 @@ function add_passwd(min_num_chars, sepa_char, lang) {
         ".wikipedia.org/w/api.php?action=query&generator=random&grnnamespace=0&format=json&callback=?",
         function (data) {
 
-            //console.log(JSON.stringify(data));
-            //console.log("");
-
-            const rndID = Object.keys(data['query']['pages'])[0];
+            let rndID = Object.keys(data['query']['pages'])[0];
             title = data['query']['pages'][rndID]['title'];
             //console.log("ID = " + rndID);
-            //console.log("");
-
+            //rndID = 1860844;
 
             //Get text
             ajaxQ.push($.getJSON("https://" + lang + ".wikipedia.org/w/api.php?action=parse&pageid=" + rndID +
                 "&prop=text&format=json&callback=?", function (data) {
 
                 //console.log(JSON.stringify(data));
-                //console.log("");
 
                 const token = Object.keys(data.parse.text)[0];
-                let text = data.parse.text[token].split("<p>");
+                let text = data.parse.text[token];
 
+                text = text.replace(/<!--[\s\S]*?(?=-->)-->/gm, ' '); // Remove html comment
+                text = text.replace(/<script.*?(?=<\/script>)<\/script>/gm, ' '); // Remove script tags
+                text = text.replace(/<style.*?(?=<\/style>)<\/style>/gm, ' '); // Remove style tags
+                // Remove Wikipedia UI elements
+                text = removeAllHTMLSection(text, '<span class="mw-headline"', "<span", "</span>");
+                text = removeAllHTMLSection(text, '<span class="mw-editsection"', "<span", "</span>");
+                text = removeAllHTMLSection(text, '<div class="NavHead"', "<div", "</div>");
+                text = removeAllHTMLSection(text, '<div class="NavContent"', "<div", "</div>");
+                text = removeAllHTMLSection(text, 'class="mw-editsection-visualeditor"', "<a", "</a>");
+                text = removeAllHTMLSection(text, '<div id="toc"', "<div", "</div>");
+                text = removeAllHTMLSection(text, '<div id="normdaten"', "<div", "</div>"); // German
+                text = removeAllHTMLSection(text, '<table class="metadata', "<table", "</table>");
+                text = removeAllHTMLSection(text, '<table class="box-Multiple_issues', "<table", "</table>"); // English
+                text = removeAllHTMLSection(text, '<div role="navigation" class="navbox"', "<div", "</div>"); // English
+                text = removeAllHTMLSection(text, 'class="noprint', "<table", "</table>");
+                text = removeAllHTMLSection(text, '<div class="bandeau-article', "<div", "</div>"); // French
+                text = removeAllHTMLSection(text, '<div class="homonymie"', "<div", "</div>"); // French
+                text = removeAllHTMLSection(text, '<div class="autres-projets', "<div", "</div>"); // French
+                text = removeAllHTMLSection(text, 'class="bandeau-portail"', "<ul", "</ul>"); // French
+                text = removeAllHTMLSection(text, 'class="catlinks"', "<div", "</div>"); // French
+                text = removeAllHTMLSection(text, 'class="ambox metadata', "<table", "</table>"); // Italian
+                text = removeAllHTMLSection(text, 'class="extiw"', "<a", "</a"); // Italian
 
-                let pText = "";
-                for (let p = 0; p < text.length; p++) {
-                    //Remove html comment
-                    text[p] = text[p].split("<!--");
-                    if (text[p].length > 1) {
-                        text[p][0] = text[p][0].split(/\r\n|\r|\n/);
-                        text[p][0] = text[p][0][0];
-                        text[p][0] += "</p> ";
-                    }
-                    text[p] = text[p][0];
+                text = text.replace(/<[^>]+>/gm, " "); // Remove HTML tags
+                text = text.replace(/&[^;]*;/gmi, ' '); // Remove HTML codes
+                text = text.replace(/\r\n|\r|\n/gm, ' '); // Remove newlines
 
-                    //Construct a string from paragraphs
-                    const htmlStrip = strip(text[p]); // remove HTML
-                    const splitNewline = htmlStrip.split(/\r\n|\r|\n/); //Split on newlines
-                    for (let newline = 0; newline < splitNewline.length; newline++) {
-                        if (splitNewline[newline].substring(0, 11) !== "Cite error:") {
-                            pText += splitNewline[newline];
-                            pText += " ";
-                        }
-                    }
-                }
+                // Prepare text
+                text = text.replace(/\[\d+]/gm, " "); // Remove reference tags (e.x. [1], [4], etc)
+                text = text.replace(/-/gmi, ' ').replace(/–/gmi, ' '); // Replace hyphen
+                text = text.replace(/:/gmi, ' '); // Replace colon
+                text = text.replace(/\./gmi, ' '); // Replace dot
+                text = text.replace(/,/gmi, ' '); // Replace comma
+                text = text.replace(/\|/gmi, ' '); // Replace tab
+                text = text.replace(/Ä/gm, "Ae").replace(/ä/gm, "ae").replace(/Ö/gm, "Oe")
+                    .replace(/ö/gm, "öe").replace(/Ü/gm, "Ue").replace(/ü/gm, "ue")
+                    .replace(/ß/gm, "ss"); // Replace Umlaute + Eszett
+                text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, ""); // Replace diacritics
+                text = text.replace(/[^a-zA-Z0-9 ]/gm, ''); // Remove any other special characters
 
-                pText = pText.substring(0, pText.length - 2); // Remove extra newline
-                pText = pText.replace(/\[\d+]/g, ""); // Remove reference tags (e.x. [1], [4], etc)
-                pText = pText.replace("\&amp;", ""); // Remove &
-                //pText = pText.replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/Ä/g,"Ae")
-                // .replace(/Ö/g,"Oe").replace(/Ü/g,"Ue").replace(/ß/g,"ss");
-                pText = pText.replace(/\u00e4/g, "ae").replace(/\u00c4/g, "Ae").replace(/\u00f6/g, "oe")
-                    .replace(/\u00d6/g, "Oe").replace(/\u00fc/g, "ue").replace(/\u00dc/g, "Ue")
-                    .replace(/\u00df/g, "ss"); // Remove Umlaute
-                pText = pText.replace("-", " "); // Replace hyphen
-                pText = pText.replace(/[^\w\s]/gi, ""); // Remove special characters
+                //console.log(text);
 
-                //console.log(pText);
-                //console.log("");
-
-                if (pText.length > (min_num_chars * 2)) {
+                // Generate password from list of words
+                if (text.length > (min_num_chars * 2)) {
                     let pw = "";
-                    const words = pText.trim().split(/\s+/); // Split on whitespace
+                    const words = text.trim().split(/\s+/); // Split on whitespace
                     let pick = Math.floor((Math.random() * words.length));
                     pw += words.splice(pick, 1);
                     while (pw.length < min_num_chars) {

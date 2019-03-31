@@ -11,6 +11,29 @@
         .pwtext {
             font-family: monospace;
         }
+        body {
+            background-color: black;
+            color: limegreen;
+        }
+        /* unvisited link */
+        a:link {
+            color: yellow;
+        }
+
+        /* visited link */
+        a:visited {
+            color: gray;
+        }
+
+        /* mouse over link */
+        a:hover {
+            color: orange;
+        }
+
+        /* selected link */
+        a:active {
+            color: white;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-latest.min.js"></script>
     <script src="zxcvbn.js"></script>
@@ -41,7 +64,7 @@
                 <input type="radio" id="fr" name="wiki" value="fr">
                 <label for="fr">French</label>
                 <input type="radio" id="it" name="wiki" value="it">
-                <label for="it">Spanish</label>
+                <label for="it">Italian</label>
                 <input type="radio" id="cs" name="wiki" value="cs">
                 <label for="cs">Czech</label>
                 <input type="radio" id="nl" name="wiki" value="nl">
